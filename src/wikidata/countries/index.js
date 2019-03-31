@@ -1,6 +1,4 @@
-
-import wdk from 'wikidata-sdk';
-import rp from 'request-promise';
+import { getQuestion } from '../common/index';
 
 const countriesQuery = `SELECT DISTINCT ?city ?cityLabel ?population ?country ?countryLabel ?loc WHERE {
     {
@@ -22,25 +20,18 @@ const countriesQuery = `SELECT DISTINCT ?city ?cityLabel ?population ?country ?c
 }`;
 
 export async function getCountriesQuery() {
-    const url = await wdk.sparqlQuery(countriesQuery)
-// request the generated URL with your favorite HTTP request library
 
-    const result = await rp({ method: 'GET', url }),
-        cities = JSON.parse(result),
-        maxNumber = cities['results']['bindings'].length,
-        random = Math.floor(Math.random() * (+maxNumber - +0)),
-        random2 = Math.floor(Math.random() * (+maxNumber - +0)),
-        random3 = Math.floor(Math.random() * (+maxNumber - +0)),
-        random4 = Math.floor(Math.random() * (+maxNumber - +0)),
-        city = cities['results']['bindings'][random],
-        city2 = cities['results']['bindings'][random2],
-        city3 = cities['results']['bindings'][random3],
-        city4 = cities['results']['bindings'][random4],
-        cityLabel = city.cityLabel.value,
-        countryLabel = city.countryLabel.value,
-        countryLabel2 = city2.countryLabel.value,
-        countryLabel3 = city3.countryLabel.value,
-        countryLabel4 = city3.countryLabel.value;
+        const answers = await getQuestion(countriesQuery),
+            cityLabel = answers[0].cityLabel.value,
+            countryLabel = answers[0].countryLabel.value,
+            countryLabel2 = answers[1].countryLabel.value,
+            countryLabel3 = answers[2].countryLabel.value,
+            countryLabel4 = answers[3].countryLabel.value;
+    
 
-    return {'question': `What country has a city called ${cityLabel}?`, 'answer': countryLabel, 'possible': [countryLabel, countryLabel2, countryLabel3, countryLabel4] };
+    return {
+        question: `What country has a city called ${cityLabel}?`, 
+        answer: countryLabel, 
+        possible: [countryLabel, countryLabel2, countryLabel3, countryLabel4]
+     };
 }
